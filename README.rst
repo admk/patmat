@@ -6,8 +6,7 @@ Functional-style recursive pattern matching in Python. Crazy stuff.
 
 Install
 -------
-
-Easy::
+.. code-block:: sh
 
     pip install patmat
 
@@ -15,28 +14,37 @@ Easy::
 Usage
 -----
 
-A quick overview of pattern matching with `patmat`::
+Pattern matching with `patmat`:
+
+.. code-block:: python
 
     >>> from patmat import *
     >>> Mimic({(1, Val('k')): (3, Val('v'))}).match({(1, 2): (3, 4)})
     {'k': 2, 'v': 4}
 
-Multiple dispatch generic functions::
+Multiple dispatch generic functions:
+
+.. code-block:: python
 
     >>> from patmat import *
+    >>>
     >>> @case
     >>> def func(match, l=[Val('head'), ...]):
     ...     print('a list with first item: {}'.format(match.head))
+    >>>
     >>> @case
     >>> def func(match, l=Val('item')):
     ...     print('an item: {}'.format(match.item))
+    >>>
     >>> func([1, 2, 3])
     a list with first item: 1
     >>> func(4)
     an item: 4
 
-Matches `list`, `tuple`, `dict`, types, classes with attributes. Brace yourself
-for the power of recursive pattern matching::
+Matches ``list``, ``tuple``, ``dict``, types, classes with attributes. Brace yourself
+for the power of recursive pattern matching:
+
+.. code-block:: python
 
     >>> from patmat import *
     >>> m = Mimic([
