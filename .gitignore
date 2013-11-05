@@ -3,3 +3,7 @@
 
 # python
 *.py[co]
+
+# packages
+*.egg-info
+dist
