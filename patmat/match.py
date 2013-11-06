@@ -78,7 +78,7 @@ class Dispatcher(object):
                     conc_sig[k] = arg_sig[k]
             for func, abs_sig in self.func_map[func_name]:
                 match_env = abs_sig.match(conc_sig)
-                if not match_env:
+                if match_env is None:
                     continue
                 return func(_DotDict(match_env), *args, **kwargs)
             sig = ', '.join('{}={!r}'.format(k, v)

@@ -24,7 +24,7 @@ class _Mimic(object):
         env = {}
         if self._match(other, env):
             return env
-        return {}
+        return None
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -249,7 +249,11 @@ def Mimic(*args, **kwargs):
         for k, v in kwargs.items():
             kwargs[k] = Mimic(v)
         return Attr(**kwargs)
-    value = args[0] if len(args) == 1 else args
+    if len(args) > 1:
+        return Seq(args)
+    value = args[0]
+    if isinstance(value, type):
+        return Type(value)
     if isinstance(value, list):
         return List(Mimic(v) for v in value)
     if isinstance(value, tuple):

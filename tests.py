@@ -54,7 +54,7 @@ class TestMatch(unittest.TestCase):
         s = Switch(1)
         self.assertEqual(s.with_case(Val('a'), lambda a: a), 1)
 
-    def test_case_decorator(self):
+    def test_case_decorator_args(self):
         @case
         def func(matched, x=Val('x'), y=Val('y'), z=Val('z')):
             self.assertEqual(matched, {'x': 1, 'y': 2, 'z': 3})
@@ -64,3 +64,15 @@ class TestMatch(unittest.TestCase):
         func(*[1, 2], z=3)
         func(1, y=2, z=3)
         func(x=1, y=2, z=3)
+
+    def test_case_decorator_dispatch(self):
+        @case
+        def func(match, x=int):
+            print('Do something with an integer.')
+
+        @case
+        def func(match, x=float):
+            print('Do something with a funcloat.')
+
+        func(1)
+        func(1.0)
