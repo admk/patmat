@@ -72,7 +72,7 @@ class TestMatch(unittest.TestCase):
 
         @case
         def func(match, x=float):
-            print('Do something with a funcloat.')
+            print('Do something with a float.')
 
         func(1)
         func(1.0)
