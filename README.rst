@@ -41,8 +41,25 @@ Multiple dispatch generic functions:
     >>> func(4)
     an item: 4
 
-Matches ``list``, ``tuple``, ``dict``, types, classes with attributes. Brace yourself
-for the power of recursive pattern matching:
+More dispatch examples:
+
+.. code-block:: python
+
+    >>> @case
+    >>> def func(_, x=int):
+    ...     print('Do something with an integer.')
+    >>>
+    >>> @case
+    >>> def func(_, x=float):
+    ...     print('Do something with a float.')
+    >>>
+    >>> func(1)
+    Do something with an integer
+    >>> func(1.0)
+    Do something with a float
+
+Matches ``list``, ``tuple``, ``dict``, types, classes with attributes. Brace
+yourself for the power of recursive pattern matching:
 
 .. code-block:: python
 
