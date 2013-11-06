@@ -29,17 +29,17 @@ Multiple dispatch generic functions:
     >>> from patmat import *
     >>>
     >>> @case
-    >>> def func(match, l=[Val('head'), ...]):
-    ...     print('a list with first item: {}'.format(match.head))
+    >>> def func(match, l=[Val('head'), ..., 3, Val('tail')]):
+    ...     print('a list with a head {} and a tail {}'.format(match.head, match.tail))
     >>>
     >>> @case
     >>> def func(match, l=Val('item')):
-    ...     print('an item: {}'.format(match.item))
+    ...     print('an item {}'.format(match.item))
     >>>
-    >>> func([1, 2, 3])
-    a list with first item: 1
-    >>> func(4)
-    an item: 4
+    >>> func([1, 2, 3, 4])
+    a list with a head 1 and a tail 4
+    >>> func(5)
+    an item: 5
 
 More dispatch examples:
 
