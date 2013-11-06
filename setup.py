@@ -26,7 +26,7 @@ setup(
     install_requires=[''],
     packages=['patmat'],
     include_package_data=True,
-    scripts=[''],
+    scripts=[],
     classifiers=(
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

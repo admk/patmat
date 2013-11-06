@@ -7,3 +7,4 @@
 # packages
 *.egg-info
 dist
+build
