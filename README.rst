@@ -73,3 +73,9 @@ yourself for the power of recursive pattern matching:
     ...     __init__ = lambda self, **kwargs: self.__dict__.update(kwargs)
     >>> m.match([1, 2, A(a=3, b=[4, 5, 6], c=7), 8, {9: 10, 11: 12}])
     {2: 2, 5: 5, 7: 7, 8: 8, 9: 9, 11: 11}
+
+
+.. image:: https://d2weczhvl823v0.cloudfront.net/admk/patmat/trend.png
+   :alt: Bitdeli badge
+   :target: https://bitdeli.com/free
+
