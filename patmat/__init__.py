@@ -9,6 +9,6 @@ __license__ = 'MIT'
 
 
 from patmat.mimic import (
-    Val, ZeroFsGiven, _, Type, Attr, Seq, List, Tuple, Dict, Mimic,
+    Val, ZeroFsGiven, _, Type, Attr, Seq, List, Tuple, Dict, Pred, Mimic,
 )
 from patmat.match import Match, Switch, case

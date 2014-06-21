@@ -7,7 +7,7 @@ class _Mimic(object):
     Subclasses must override :member:`_match` and :member:`__hash__`.
     """
     def _match_item(self, mimic, value, env):
-        sub_env = {}
+        sub_env = dict(env)
         if isinstance(mimic, _Mimic):
             value_match = mimic._match(value, sub_env)
             if not value_match:
@@ -17,7 +17,7 @@ class _Mimic(object):
         env.update(sub_env)
         return True
 
-    def _match(self, other, env=None):
+    def _match(self, other, env):
         raise NotImplementedError
 
     def match(self, other):
@@ -33,6 +33,7 @@ class _Mimic(object):
 
     def __hash__(self):
         raise NotImplementedError
+mimic_type = _Mimic
 
 
 class Val(_Mimic):
@@ -45,25 +46,23 @@ class Val(_Mimic):
         super(Val, self).__init__()
         self.name = name
 
-    def _match(self, other, env=None):
-        if env is not None:
-            if self.name in env:
-                raise ValueError(
-                    'Name collision, {!r} already declared.'.format(self.name))
-            if isinstance(other, _Mimic):
-                raise ValueError(
-                    'A Mimic instance {} exists in the value to be '
-                    'matched.'.format(other))
-            env[self.name] = other
+    def _match(self, other, env):
+        value = env.get(self.name, _dummy)
+        if value is not _dummy:
+            return self._match_item(value, other, env)
+        if isinstance(other, _Mimic):
+            raise ValueError(
+                'A Mimic instance {} exists in the value to be '
+                'matched.'.format(other))
+        env[self.name] = other
         return True
 
     def __hash__(self):
         return hash((self.__class__, self.name))
 
-    def __str__(self):
+    def __repr__(self):
         return '{cls}({name!r})'.format(
             cls=self.__class__.__name__, name=self.name)
-    __repr__ = __str__
 
 
 class ZeroFsGiven(_Mimic):
@@ -74,9 +73,8 @@ class ZeroFsGiven(_Mimic):
     def __hash__(self):
         return hash(self.__class__)
 
-    def __str__(self):
+    def __repr__(self):
         return '{cls}()'.format(cls=self.__class__.__name__)
-    __repr__ = __str__
 _ = ZeroFsGiven
 
 
@@ -91,7 +89,7 @@ class Type(_Mimic):
         self.type = type
         self.mimic = mimic
 
-    def _match(self, other, env=None):
+    def _match(self, other, env):
         if not isinstance(other, self.type):
             return False
         return self.mimic._match(other, env)
@@ -99,11 +97,9 @@ class Type(_Mimic):
     def __hash__(self):
         return hash((self.__class__, self.type, self.mimic))
 
-    def __str__(self):
-        return '{cls}({type!r}, {mimic!r})'.format(
-            cls=self.__class__.__name__,
-            type=self.type.__name__, mimic=self.mimic)
-    __repr__ = __str__
+    def __repr__(self):
+        return '{cls}({type}, {mimic!r})'.format(
+            cls=self.__class__.__name__, type=self.type, mimic=self.mimic)
 
 
 class Attr(_Mimic):
@@ -112,7 +108,7 @@ class Attr(_Mimic):
         super(Attr, self).__init__()
         self.attrs = kwargs
 
-    def _match(self, other, env=None):
+    def _match(self, other, env):
         for attr, attr_value in self.attrs.items():
             try:
                 other_value = getattr(other, attr)
@@ -125,12 +121,11 @@ class Attr(_Mimic):
     def __hash__(self):
         return hash((self.__class__, self.attrs))
 
-    def __str__(self):
+    def __repr__(self):
         attrs = ', '.join('{k}={v!r}'.format(k=k, v=v)
                           for k, v in self.attrs.items())
         return '{cls}({attrs})'.format(
             cls=self.__class__.__name__, attrs=attrs)
-    __repr__ = __str__
 
 
 class Seq(_Mimic):
@@ -139,7 +134,7 @@ class Seq(_Mimic):
         super(Seq, self).__init__()
         self.seq = tuple(sequence)
 
-    def _match(self, other, env=None):
+    def _match(self, other, env):
         index = other_index = 0
         while index < len(self.seq):
             if self.seq[index] is Ellipsis:
@@ -176,10 +171,9 @@ class Seq(_Mimic):
     def __hash__(self):
         return hash((self.__class__, self.seq))
 
-    def __str__(self):
+    def __repr__(self):
         return '{cls}({seq!r})'.format(
             cls=self.__class__.__name__, seq=self.seq)
-    __repr__ = __str__
 
 
 class _TypedSeq(Type):
@@ -189,10 +183,9 @@ class _TypedSeq(Type):
     def __init__(self, seq):
         super(_TypedSeq, self).__init__(self.type, Seq(seq))
 
-    def __str__(self):
+    def __repr__(self):
         return '{cls}({seq!r})'.format(
             cls=self.__class__.__name__, seq=self.mimic.seq)
-    __repr__ = __str__
 
 
 class List(_TypedSeq):
@@ -230,12 +223,32 @@ class Dict(_Mimic):
     def __hash__(self):
         return hash((self.__class__, tuple(self.dictionary.items())))
 
-    def __str__(self):
+    def __repr__(self):
         attrs = ', '.join('{k!r}: {v!r}'.format(k=k, v=v)
                           for k, v in self.dictionary.items())
         return '{cls}({{{attrs}}})'.format(
             cls=self.__class__.__name__, attrs=attrs)
-    __repr__ = __str__
+
+
+class Pred(_Mimic):
+    """Mimics something satisfying a predicate.  """
+    def __init__(self, predicate, mimic=ZeroFsGiven()):
+        super(Pred, self).__init__()
+        self.predicate = predicate
+        self.mimic = mimic
+
+    def _match(self, other, env):
+        if not self.predicate(other):
+            return False
+        return self.mimic._match(other, env)
+
+    def __hash__(self):
+        return hash((self.__class__, self.predicate, self.mimic))
+
+    def __repr__(self):
+        return '{cls}({predicate}, {mimic!r})'.format(
+            cls=self.__class__.__name__,
+            predicate=self.predicate, mimic=self.mimic)
 
 
 def Mimic(*args, **kwargs):
@@ -260,4 +273,6 @@ def Mimic(*args, **kwargs):
         return Tuple(Mimic(v) for v in value)
     if isinstance(value, dict):
         return Dict({Mimic(k): Mimic(v) for k, v in value.items()})
+    if callable(value):
+        return Pred(value)
     return value
