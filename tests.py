@@ -59,6 +59,13 @@ class TestMimic(unittest.TestCase):
         ])
         self.assertEqual(m, n)
 
+    def test_repr(self):
+        cases = (
+            (Or('a', {'x': 5}, 'c'), "Or('a', Dict({'x': 5}), 'c')"),
+        )
+        for mimic, expected in cases:
+            self.assertEqual(repr(mimic), expected)
+
 
 class TestMatch(unittest.TestCase):
     def test_match_and_switch(self):

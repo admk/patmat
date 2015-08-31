@@ -253,6 +253,12 @@ class Or(_Mimic):
 
         return False
 
+    def __repr__(self):
+        attrs = ', '.join(repr(mimic)
+                          for mimic in self.args)
+        return '{cls}({attrs})'.format(
+            cls=self.__class__.__name__, attrs=attrs)
+
 
 class Pred(_Mimic):
     """Mimics something satisfying a predicate.  """
