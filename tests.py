@@ -1,7 +1,7 @@
 import unittest
 
 from patmat import (
-    Val, ZeroFsGiven, Attr, Seq, List, Tuple, Dict, Type, Mimic,
+    Val, ZeroFsGiven, Attr, Seq, List, Tuple, Dict, Type, Mimic, Or,
     Match, Switch, case
 )
 
@@ -30,6 +30,18 @@ class TestMimic(unittest.TestCase):
         })
         d = {1: 2, 3: 4, (5, 6): (7, 8)}
         self.assertEqual(m.match(d), {'a': 2, 'b': 3, 'c': 5, 'd': 8})
+
+    def test_or_matching(self):
+        cases = (
+            (Or('a', 'b'), 'a', {}),
+            (Or('a', 'b', Val('x')), 'c', {'x': 'c'}),
+            (Or('a', 'b', Val('x')), 'a', {}),
+            (Mimic({'a': Or('x', 'y')}), {'a': 'z'}, None),
+            (Mimic({'a': Or('x', 'y')}), {'a': 'x'}, {}),
+            (Or([Val('x'), 'a'], [Val('y'), 'b']), [1, 'b'], {'y': 1}),
+        )
+        for m, obj, expected in cases:
+            self.assertEqual(m.match(obj), expected)
 
     def test_zero_fs_matching(self):
         m = ZeroFsGiven()

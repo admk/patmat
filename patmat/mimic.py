@@ -230,6 +230,27 @@ class Dict(_Mimic):
             cls=self.__class__.__name__, attrs=attrs)
 
 
+class Or(_Mimic):
+    """Mimics if at least one of args is matching"""
+
+    def __init__(self, *args):
+        super(Or, self).__init__()
+        self.args = [Mimic(arg) for arg in args]
+
+    def _match(self, other, env):
+        for mimic in self.args:
+            if isinstance(mimic, _Mimic):
+                sub_env = dict(env)
+                value_match = mimic._match(other, sub_env)
+                if value_match:
+                    env.update(sub_env)
+                    return True
+            elif mimic == other:
+                return True
+
+        return False
+
+
 class Pred(_Mimic):
     """Mimics something satisfying a predicate.  """
     def __init__(self, predicate, mimic=ZeroFsGiven()):
