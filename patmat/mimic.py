@@ -31,6 +31,9 @@ class _Mimic(object):
             return False
         return vars(self) == vars(other)
 
+    def __or__(self, other):
+        return Or(self, other)
+
     def __hash__(self):
         raise NotImplementedError
 mimic_type = _Mimic

@@ -38,6 +38,7 @@ class TestMimic(unittest.TestCase):
             (Or('a', 'b', Val('x')), 'a', {}),
             (Mimic({'a': Or('x', 'y')}), {'a': 'z'}, None),
             (Mimic({'a': Or('x', 'y')}), {'a': 'x'}, {}),
+            (Mimic(['x']) | Mimic(['y']) | Mimic(['z']), ['z'], {}),
             (Or([Val('x'), 'a'], [Val('y'), 'b']), [1, 'b'], {'y': 1}),
         )
         for m, obj, expected in cases:
