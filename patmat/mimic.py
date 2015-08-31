@@ -259,6 +259,9 @@ class Or(_Mimic):
         return '{cls}({attrs})'.format(
             cls=self.__class__.__name__, attrs=attrs)
 
+    def __hash__(self):
+        return hash((self.__class__, tuple(self.args)))
+
 
 class Pred(_Mimic):
     """Mimics something satisfying a predicate.  """
