@@ -31,6 +31,9 @@ class _Mimic(object):
             return False
         return vars(self) == vars(other)
 
+    def __or__(self, other):
+        return Or(self, other)
+
     def __hash__(self):
         raise NotImplementedError
 mimic_type = _Mimic
@@ -228,6 +231,36 @@ class Dict(_Mimic):
                           for k, v in self.dictionary.items())
         return '{cls}({{{attrs}}})'.format(
             cls=self.__class__.__name__, attrs=attrs)
+
+
+class Or(_Mimic):
+    """Mimics if at least one of args is matching"""
+
+    def __init__(self, *args):
+        super(Or, self).__init__()
+        self.args = [Mimic(arg) for arg in args]
+
+    def _match(self, other, env):
+        for mimic in self.args:
+            if isinstance(mimic, _Mimic):
+                sub_env = dict(env)
+                value_match = mimic._match(other, sub_env)
+                if value_match:
+                    env.update(sub_env)
+                    return True
+            elif mimic == other:
+                return True
+
+        return False
+
+    def __repr__(self):
+        attrs = ', '.join(repr(mimic)
+                          for mimic in self.args)
+        return '{cls}({attrs})'.format(
+            cls=self.__class__.__name__, attrs=attrs)
+
+    def __hash__(self):
+        return hash((self.__class__, tuple(self.args)))
 
 
 class Pred(_Mimic):
